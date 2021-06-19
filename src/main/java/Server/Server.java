@@ -1,6 +1,7 @@
 package Server;
 
 import Objects.Chat;
+import Objects.FileMessage;
 import Objects.Request;
 import Objects.RequestType;
 import Objects.Response;
@@ -9,6 +10,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.*;
+import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -90,6 +92,7 @@ public class Server {
             User user;
             Response response;
             String input;
+            FileMessage fileMessage;
             try{
                 RequestType type = request.getType();
                 switch(type){                    
@@ -115,6 +118,10 @@ public class Server {
                         exit = true;
                         break;
                         
+                    case GET_CURRENT_USER:
+                        out.writeObject(new Response(200, currentUser));
+                        break;
+                    
                     case GET_USER:
                         input = (String)request.getObject();
                         user = getUser(input);
@@ -124,18 +131,48 @@ public class Server {
                             response = new Response(400);
                         }
                         out.writeObject(response);
+                        break;
                     
                     case CREATE_CHAT:
                         input = (String)request.getObject();
                         user = getUser(input);
                         createChat(user);
+                        break;
                         
+                    case SEND_FILE:
+                        fileMessage = (FileMessage)request.getObject();
+                        receiveFile(fileMessage);
+                        break;
                         
+                    case GET_FILES:
+                        int chat = (Integer)request.getObject();
+                        getFilesFromChat(chat);
+                        break;
                 }
             }
             catch(IOException e){
             }
             
+        }
+        
+        public void receiveFile(FileMessage fileMessage){
+            
+            database.createFile(fileMessage);
+            try {   
+                out.writeObject(new Response(200));
+            } catch (IOException ex) {
+                Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+        
+        public void getFilesFromChat(int chatId){
+            
+            ArrayList<FileMessage> files = (ArrayList<FileMessage>) database.getFilesFromChat(chatId);
+            try {
+                out.writeObject(new Response(200, files));
+            } catch (IOException ex) {
+                Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
+            }
         }
         
         public void createChat(User friend){

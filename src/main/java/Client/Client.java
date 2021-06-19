@@ -1,20 +1,20 @@
 package Client;
 
 import Objects.Chat;
+import Objects.FileMessage;
 import Objects.Request;
 import Objects.RequestType;
 import Objects.Response;
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
 import java.net.*;
 import Objects.User;
+import java.io.File;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.swing.JOptionPane;
+import javax.swing.filechooser.FileFilter;
 
 public class Client {
 
@@ -48,6 +48,62 @@ public class Client {
         in.close();
         clientSocket.close();
     }
+    
+    public int sendFile(File file){
+        
+        int code = 400;
+        try {
+            // gets current user
+            Request getUserRequest = new Request(RequestType.GET_CURRENT_USER);
+            out.writeObject(getUserRequest);
+            Response getUserResponse = (Response)in.readObject();
+            User user = (User)getUserResponse.getObject();
+                        
+            // sends the file
+            FileMessage fileMessage = new FileMessage(file, 2, user.getId(), file.getName());
+            Request request = new Request(fileMessage, RequestType.SEND_FILE);
+            out.writeObject(request);
+            Response response = (Response)in.readObject();
+            System.out.println(response.printMessage());
+            code = response.getCode();
+            
+        } catch (IOException ex) {
+            Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (ClassNotFoundException ex) {
+            Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return code;
+    }
+    
+    public void getFilesFromChat(int chatId){
+        
+        try {
+
+            Request request = new Request(2, RequestType.GET_FILES);
+            out.writeObject(request);
+           
+            Response response = (Response)in.readObject();
+            System.out.println(response.printMessage());
+            ArrayList<FileMessage> files = (ArrayList<FileMessage>)response.getObject();
+            
+            System.out.println("Files in chat: " + chatId);
+            for(FileMessage file: files){
+                System.out.println(file.getFilename());
+                File savedFile = new File("C:\\Users\\kaela\\Descargas\\" + file.getFilename());
+            }
+            
+        } catch (IOException ex) {
+            Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (ClassNotFoundException ex) {
+            Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
+        }        
+    }
+    
+    public void changeAcceptedExtensions(ArrayList<FileFilter> extensions){
+        
+        
+    }
+    
     
     public boolean register(String username, String password){
         

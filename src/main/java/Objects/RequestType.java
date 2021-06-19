@@ -15,5 +15,8 @@ public enum RequestType {
     LOGIN_USER,
     SHUTDOWN,
     GET_USER,
-    CREATE_CHAT
+    GET_CURRENT_USER,
+    CREATE_CHAT,
+    SEND_FILE,
+    GET_FILES
 }

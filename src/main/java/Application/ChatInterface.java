@@ -104,6 +104,11 @@ public class ChatInterface extends javax.swing.JFrame {
 
         jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel1.setIcon(new javax.swing.ImageIcon("C:\\Users\\kaela\\Documents\\NetBeansProjects\\fileChat\\src\\main\\java\\Images\\icons8-male-user-32.png")); // NOI18N
+        jLabel1.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                changeAcceptedExtensions(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
         jPanel4.setLayout(jPanel4Layout);
@@ -446,6 +451,7 @@ public class ChatInterface extends javax.swing.JFrame {
         
         try {
             client.newChat(friendUsername);
+            
         } catch (IOException ex) {
             Logger.getLogger(ChatInterface.class.getName()).log(Level.SEVERE, null, ex);
         } catch (ClassNotFoundException ex) {
@@ -453,49 +459,6 @@ public class ChatInterface extends javax.swing.JFrame {
         }               
     }//GEN-LAST:event_createNewChat
 
-    private void addMessage(int flowLayoutAlign, Color color){
-        
-        JPanel panel = new JPanel(new FlowLayout(flowLayoutAlign));
-        panel.setBackground(color);
-        
-        JLabel icon = new JLabel();
-        icon.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        icon.setIcon(new javax.swing.ImageIcon("C:\\Users\\kaela\\Documents\\NetBeansProjects\\fileChat\\src\\main\\java\\Images\\icons8-download-32.png"));
-        
-        JLabel file = new JLabel();
-        file.setFont(new java.awt.Font("Arial", 0, 12));
-        file.setForeground(new java.awt.Color(0, 0, 0));
-        file.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        file.setText("Baby - Justin Bieber.mp3");
-        
-        panel.add(icon);
-        panel.add(file);
-        boxPanel.add(panel);
-        boxPanel.revalidate();
-        
-        /*label.setBorder(BorderFactory.createLineBorder(borderColor));
-        label.setText("<html><body style='width: " + CHAT_BOX_WIDTH + "px;'>");
-        panel.add(label);
-        boxPanel.add(panel);
-        boxPanel.revalidate();*/
-        
-        /*jLabel14.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLabel14.setIcon(new javax.swing.ImageIcon("C:\\Users\\kaela\\Documents\\NetBeansProjects\\fileChat\\src\\main\\java\\Images\\icons8-download-32.png")); // NOI18N
-
-        jLabel15.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
-        jLabel15.setForeground(new java.awt.Color(0, 0, 0));
-        jLabel15.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLabel15.setText("Baby - Justin Bieber.mp3");*/
-    }
-    
-    private void addMessageLeft(){
-        addMessage(FlowLayout.LEADING, new Color(122, 169, 117));
-    }
-    
-    private void addMessageRight(){
-        addMessage(FlowLayout.TRAILING, new Color(135, 187, 130));
-    }
-    
     private void sendFileClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_sendFileClicked
 
         // change with the other user's filter
@@ -509,6 +472,7 @@ public class ChatInterface extends javax.swing.JFrame {
             File sendingFile = openFileChooser.getSelectedFile();
             try {
                 client.sendMessage("File chosen!");
+                client.sendFile(sendingFile);
 
                 // file has to be sent
                 // server.sendFile(sendingFile); ¿?
@@ -528,7 +492,14 @@ public class ChatInterface extends javax.swing.JFrame {
             }
         }
         
+        client.getFilesFromChat(2);
     }//GEN-LAST:event_sendFileClicked
+
+    private void changeAcceptedExtensions(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_changeAcceptedExtensions
+        
+        new AcceptedExtensionsInterface(client).setVisible(true);
+        
+    }//GEN-LAST:event_changeAcceptedExtensions
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel boxPanel;

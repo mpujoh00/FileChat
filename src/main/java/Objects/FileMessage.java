@@ -14,18 +14,33 @@ import java.io.File;
  */
 public class FileMessage implements Serializable {
     
+    private int id;
     private File file;
     private int chat_id;
     private int from_id;
+    private String filename;
     
     public FileMessage(File file){
         this.file = file;
     }
     
-    public FileMessage(File file, int chat, int from){
+    public FileMessage(File file, int chat, int from, String filename){
         this.file = file;
         this.chat_id = chat;
         this.from_id = from;
+        this.filename = filename;
+    }
+    
+    public FileMessage(int id, File file, int chat, int from, String filename){
+        this.id = id;
+        this.file = file;
+        this.chat_id = chat;
+        this.from_id = from;
+        this.filename = filename;
+    }
+    
+    public int getId(){
+        return this.id;
     }
     
     public File getFile(){
@@ -38,5 +53,9 @@ public class FileMessage implements Serializable {
     
     public int getUserFromId(){
         return this.from_id;
+    }
+    
+    public String getFilename(){
+        return this.filename;
     }
 }

@@ -139,6 +139,9 @@
                       <Image iconType="2" name="C:\Users\kaela\Documents\NetBeansProjects\fileChat\src\main\java\Images\icons8-male-user-32.png"/>
                     </Property>
                   </Properties>
+                  <Events>
+                    <EventHandler event="mouseClicked" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="changeAcceptedExtensions"/>
+                  </Events>
                 </Component>
               </SubComponents>
             </Container>
