@@ -6,10 +6,12 @@ import Objects.Request;
 import Objects.RequestType;
 import Objects.Response;
 import Objects.User;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.*;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -65,7 +67,6 @@ public class Server {
             this.database = database;
             System.out.println("New client connected!");
             this.exit = false;
-            
         }
 
         public void run() {
@@ -80,6 +81,7 @@ public class Server {
                         attendRequest(request);
                     }
                 }
+                disconnectUser();
                 in.close();
                 out.close();
                 clientSocket.close();
@@ -148,6 +150,15 @@ public class Server {
                         int chat = (Integer)request.getObject();
                         getFilesFromChat(chat);
                         break;
+                        
+                    case CHANGE_EXTENSIONS:
+                        input = (String)request.getObject();
+                        changeExtensions(input);
+                        break;
+                        
+                    case CHECK_USER_AVAILABLE:
+                        input = (String)request.getObject();
+                        checkUserAvailable(input);
                 }
             }
             catch(IOException e){
@@ -157,9 +168,18 @@ public class Server {
         
         public void receiveFile(FileMessage fileMessage){
             
-            database.createFile(fileMessage);
-            try {   
-                out.writeObject(new Response(200));
+            int code = 200;
+            try {
+                database.createFile(fileMessage);
+            } catch (SQLException ex) {
+                code = 500;
+                Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (FileNotFoundException ex) {
+                code = 404;
+                Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            try {
+                out.writeObject(new Response(code));
             } catch (IOException ex) {
                 Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -167,16 +187,44 @@ public class Server {
         
         public void getFilesFromChat(int chatId){
             
-            ArrayList<FileMessage> files = (ArrayList<FileMessage>) database.getFilesFromChat(chatId);
+            int code = 200;
+            ArrayList<FileMessage> files = new ArrayList<>();
             try {
-                out.writeObject(new Response(200, files));
+                files = (ArrayList<FileMessage>) database.getFilesFromChat(chatId);
+            } catch (SQLException ex) {
+                code = 500;
+                Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (IOException ex) {
+                code = 400;
+                Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            try {
+                out.writeObject(new Response(code, files));
+            } catch (IOException ex) {
+                Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+        
+        public void changeExtensions(String extensions){
+            
+            int code = 200;
+            currentUser.setAcceptedExtensions(extensions);
+            try {
+                database.changeAcceptedExtensions(currentUser);
+            } catch (SQLException ex) {
+                code = 500;
+                Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            try {
+                out.writeObject(new Response(code));
             } catch (IOException ex) {
                 Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
         
         public void createChat(User friend){
-                                    
+                     
+            int code = 200;
             Response response;
             
             // checks if the user exists
@@ -188,15 +236,20 @@ public class Server {
                 Chat chat = getChat(friend);
                 if(chat == null){  // chat doesn't exist
                     chat = new Chat(currentUser.getId(), friend.getId());
-
-                    // creates the chat
-                    database.createChat(chat);
+                    try {
+                        // creates the chat
+                        database.createChat(chat);
+                    } catch (SQLException ex) {
+                        code = 500;
+                        Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
+                    }
                     Chat newChat = getChat(friend);
 
-                    response = new Response(200, newChat);
+                    response = new Response(code, newChat);
                 }
                 else{  // chat already existed
-                    response = new Response(402, chat);
+                    code = 402;
+                    response = new Response(code, chat);
                 }  
             }
             // sends the response
@@ -214,19 +267,23 @@ public class Server {
         
         public void registerUser(User user){
             
-            Response response;
+            int code = 200;
             boolean alreadyExists = checkUsernameExists(user.getUsername());
 
             if(alreadyExists){
-                response = new Response(400);
+                code = 400;
             }else{
-                response = new Response(200);
-                database.registerUser(user);
+                try {
+                    database.registerUser(user);
+                } catch (SQLException ex) {
+                    code = 500;
+                    Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
+                }
                 this.currentUser = getUser(user.getUsername());
             }
             // sends response
             try {
-                out.writeObject(response);
+                out.writeObject(new Response(code));
             } catch (IOException ex) {
                 Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -234,23 +291,51 @@ public class Server {
         
         public void loginUser(User user){
             
-            Response response;
+            int code = 200;
             User databaseUser = getUser(user.getUsername());
             
             if(databaseUser == null){  // user doesn't exist
-                response = new Response(400);
+                code = 400;
             }
             else if(!databaseUser.getPassword().equals(user.getPassword())){  // incorrect password
-                response = new Response(401);                
+                code = 401;               
             }
             else{  // success
-                response = new Response(200);
                 this.currentUser = databaseUser;
+                connectUser();
             }
             // sends response
             try {
-                out.writeObject(response);
+                out.writeObject(new Response(code));
             } catch (IOException ex) {
+                Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+        
+        public void checkUserAvailable(String username){
+            
+            User user = getUser(username);
+            try {
+                out.writeObject(new Response(200, user.isAvailable()));
+            } catch (IOException ex) {
+                Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+        
+        public void connectUser(){
+            
+            try {
+                database.connectUser(currentUser);
+            } catch (SQLException ex) {
+                Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+        
+        public void disconnectUser(){
+            
+            try {
+                database.disconnectUser(currentUser);
+            } catch (SQLException ex) {
                 Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
@@ -267,7 +352,6 @@ public class Server {
         }
         
         public User getUser(String username){
-            
             return database.findUser(username);
         }
         

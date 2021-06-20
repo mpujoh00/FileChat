@@ -5,7 +5,7 @@
  */
 package Client;
 
-import Application.ChatInterface;
+import Application.MainInterface;
 import Application.LoginInterface;
 import java.io.IOException;
 

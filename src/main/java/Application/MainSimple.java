@@ -5,17 +5,82 @@
  */
 package Application;
 
+import Client.Client;
+import java.awt.Color;
+
 /**
  *
  * @author maybeitsmica
  */
-public class ChatSimple extends javax.swing.JFrame {
+public class MainSimple extends javax.swing.JFrame {
 
+    private Client client;
     /**
      * Creates new form ChatSimple
      */
-    public ChatSimple() {
+    public MainSimple(Client client) {
+        
+        this.client = client;
+        
         initComponents();
+        
+        addMessageCurrent();
+        addMessageCurrent();
+        addMessageFriend();
+        
+        /*Box panelContainer = Box.createVerticalBox(); 
+        panelContainer.setPreferredSize(new Dimension(0, 282));
+        
+        chatPanel.add(panelContainer, BorderLayout.PAGE_START);
+        JScrollPane myScrollPaneContent = new JScrollPane(chatPanel);
+        add(myScrollPaneContent);
+        
+        JLabel label = new JLabel("hello", SwingConstants.CENTER);
+        label.setPreferredSize(new Dimension(100,50));
+        
+        panelContainer.add(label);
+        panelContainer.revalidate();
+        panelContainer.repaint();
+        
+        //getContentPane().add(panelContainer);
+        
+        
+        myScrollPaneContent.revalidate();
+        myScrollPaneContent.repaint();*/
+    }
+    
+    private void addMessageCurrent(){
+        addMessage(new Color(148, 205, 142), "maybeitsmica");
+    }
+    
+    private void addMessageFriend(){
+        addMessage(new Color(122, 169, 117), "micaela");
+    }
+    
+    private void addMessage(Color color, String username){
+        
+        /*JPanel panel = new JPanel();
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+        panel.setPreferredSize(new Dimension(60,40));
+        panel.setMinimumSize(new Dimension(60,40));
+        panel.setMaximumSize(new Dimension(300,40));
+        panel.setBorder(new EmptyBorder(10, 15, 0, 0));
+        
+        JLabel label = new JLabel(username + "hello", SwingConstants.LEFT);
+        //label.setMinimumSize(new Dimension(40,30));
+        //label.setPreferredSize(new Dimension(100,30));
+        label.setFont(new Font("arial", Font.PLAIN, 16));
+        label.setBackground(color);
+        label.setOpaque(true);
+        label.setBorder(new EmptyBorder(3, 3, 3, 3));
+        label.setAlignmentX(Component.LEFT_ALIGNMENT);
+        
+        panel.add(label);
+        panel.setAlignmentX(Component.LEFT_ALIGNMENT);*/
+        /*MessageInterface m = new MessageInterface(color, username);
+        chatPanel.add(m.getMessage());
+        chatPanel.revalidate();
+        chatPanel.repaint();*/
     }
 
     /**
@@ -28,37 +93,17 @@ public class ChatSimple extends javax.swing.JFrame {
     private void initComponents() {
 
         jPanel1 = new javax.swing.JPanel();
-        jPanel2 = new javax.swing.JPanel();
-        jLabel2 = new javax.swing.JLabel();
         jPanel3 = new javax.swing.JPanel();
         friendUsername = new javax.swing.JTextField();
         jLabel1 = new javax.swing.JLabel();
         changeFriend = new javax.swing.JButton();
+        chatPanel = new javax.swing.JPanel();
+        sendFile = new javax.swing.JPanel();
+        jLabel2 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
         jPanel1.setBackground(new java.awt.Color(209, 210, 212));
-
-        jPanel2.setBackground(new java.awt.Color(245, 163, 199));
-
-        jLabel2.setFont(new java.awt.Font("Arial", 1, 24)); // NOI18N
-        jLabel2.setForeground(new java.awt.Color(0, 0, 0));
-        jLabel2.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLabel2.setIcon(new javax.swing.ImageIcon("C:\\Users\\kaela\\Documents\\NetBeansProjects\\fileChat\\src\\main\\java\\Images\\icons8-file-arrow-32.png")); // NOI18N
-        jLabel2.setText("Send file");
-
-        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
-        jPanel2.setLayout(jPanel2Layout);
-        jPanel2Layout.setHorizontalGroup(
-            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jLabel2, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-        );
-        jPanel2Layout.setVerticalGroup(
-            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel2Layout.createSequentialGroup()
-                .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 69, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 0, Short.MAX_VALUE))
-        );
 
         jPanel3.setBackground(new java.awt.Color(207, 124, 160));
         jPanel3.setPreferredSize(new java.awt.Dimension(595, 69));
@@ -104,19 +149,45 @@ public class ChatSimple extends javax.swing.JFrame {
                 .addGap(0, 0, Short.MAX_VALUE))
         );
 
+        chatPanel.setMinimumSize(new java.awt.Dimension(0, 339));
+        chatPanel.setPreferredSize(new java.awt.Dimension(0, 339));
+        chatPanel.setLayout(new javax.swing.BoxLayout(chatPanel, javax.swing.BoxLayout.Y_AXIS));
+
+        sendFile.setBackground(new java.awt.Color(207, 124, 160));
+
+        jLabel2.setFont(new java.awt.Font("Arial", 1, 24)); // NOI18N
+        jLabel2.setForeground(new java.awt.Color(0, 0, 0));
+        jLabel2.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabel2.setIcon(new javax.swing.ImageIcon("C:\\Users\\kaela\\Documents\\NetBeansProjects\\fileChat\\src\\main\\java\\Images\\icons8-file-arrow-32.png")); // NOI18N
+        jLabel2.setText("Send file");
+
+        javax.swing.GroupLayout sendFileLayout = new javax.swing.GroupLayout(sendFile);
+        sendFile.setLayout(sendFileLayout);
+        sendFileLayout.setHorizontalGroup(
+            sendFileLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jLabel2, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+        );
+        sendFileLayout.setVerticalGroup(
+            sendFileLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, 50, Short.MAX_VALUE)
+        );
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addComponent(jPanel3, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(chatPanel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(sendFile, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
                 .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 294, Short.MAX_VALUE)
-                .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(0, 0, Short.MAX_VALUE)
+                .addComponent(chatPanel, javax.swing.GroupLayout.PREFERRED_SIZE, 311, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 0, 0)
+                .addComponent(sendFile, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -134,56 +205,21 @@ public class ChatSimple extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void changeFriend(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_changeFriend
-        
+
         String username = friendUsername.getText();
-        
+
         // comprobar si está conectado / existe?
-        
-        
+
     }//GEN-LAST:event_changeFriend
-
-    /**
-     * @param args the command line arguments
-     */
-    public static void main(String args[]) {
-        /* Set the Nimbus look and feel */
-        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-         */
-        try {
-            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
-                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-                    break;
-                }
-            }
-        } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(ChatSimple.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(ChatSimple.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(ChatSimple.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(ChatSimple.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        }
-        //</editor-fold>
-
-        /* Create and display the form */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                new ChatSimple().setVisible(true);
-            }
-        });
-    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton changeFriend;
+    private javax.swing.JPanel chatPanel;
     private javax.swing.JTextField friendUsername;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JPanel jPanel1;
-    private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
+    private javax.swing.JPanel sendFile;
     // End of variables declaration//GEN-END:variables
 }

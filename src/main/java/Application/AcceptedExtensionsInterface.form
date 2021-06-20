@@ -93,9 +93,6 @@
             </Property>
             <Property name="contentAreaFilled" type="boolean" value="false"/>
           </Properties>
-          <Events>
-            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="pngExtensionActionPerformed"/>
-          </Events>
         </Component>
         <Component class="javax.swing.JCheckBox" name="txtExtension">
           <Properties>
@@ -112,9 +109,6 @@
             <Property name="borderPainted" type="boolean" value="true"/>
             <Property name="contentAreaFilled" type="boolean" value="false"/>
           </Properties>
-          <Events>
-            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="txtExtensionActionPerformed"/>
-          </Events>
         </Component>
         <Component class="javax.swing.JCheckBox" name="jpgExtension">
           <Properties>
@@ -130,9 +124,6 @@
             </Property>
             <Property name="contentAreaFilled" type="boolean" value="false"/>
           </Properties>
-          <Events>
-            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jpgExtensionActionPerformed"/>
-          </Events>
         </Component>
         <Component class="javax.swing.JCheckBox" name="pdfExtension">
           <Properties>
@@ -149,9 +140,6 @@
             <Property name="borderPainted" type="boolean" value="true"/>
             <Property name="contentAreaFilled" type="boolean" value="false"/>
           </Properties>
-          <Events>
-            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="pdfExtensionActionPerformed"/>
-          </Events>
         </Component>
         <Component class="javax.swing.JButton" name="jButton1">
           <Properties>

@@ -46,6 +46,8 @@ public class Response implements Serializable {
                 return code + " - Chat already existed";
             case 404:
                 return code + " - Not found";
+            case 500:
+                return code + " - Database error";
             default:
                 return Integer.toString(code);
         }

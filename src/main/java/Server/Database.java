@@ -45,66 +45,60 @@ public class Database {
         }
     }
     
-    public void createFile(FileMessage file){
+    public void changeAcceptedExtensions(User user) throws SQLException{
         
-        try{
-            statement = connection.prepareStatement("INSERT INTO Files (chat_id, from_id, file, file_name) VALUES (?,?,?,?)");
-            statement.setInt(1, file.getChatId());
-            statement.setInt(2, file.getUserFromId());            
-            FileInputStream fis = new FileInputStream(file.getFile());            
-            statement.setBinaryStream(3, fis);
-            statement.setString(4, file.getFilename());
-            statement.execute();
-        }
-        catch(FileNotFoundException | SQLException e){
-        }
+        statement = connection.prepareStatement("UPDATE Users SET accepted_extensions=? WHERE id=?");
+        statement.setString(1, user.getExtensions());
+        statement.setInt(2, user.getId());
+        statement.execute();
     }
     
-    public List<FileMessage> getFilesFromChat(int chatId){
+    public void createFile(FileMessage file) throws SQLException, FileNotFoundException{
+        
+        statement = connection.prepareStatement("INSERT INTO Files (chat_id, from_id, file, file_name) VALUES (?,?,?,?)");
+        statement.setInt(1, file.getChatId());
+        statement.setInt(2, file.getUserFromId());            
+        FileInputStream fis = new FileInputStream(file.getFile());            
+        statement.setBinaryStream(3, fis);
+        statement.setString(4, file.getFilename());
+        statement.execute();
+    }
+    
+    public List<FileMessage> getFilesFromChat(int chatId) throws SQLException, FileNotFoundException, IOException{
         
         ArrayList<FileMessage> files = new ArrayList<FileMessage>();
-        try {
-            statement = connection.prepareStatement("SELECT * FROM Files WHERE chat_id=?");
-            statement.setInt(1, chatId);
-            ResultSet result = statement.executeQuery();
-            
-            while(result.next()){
-                int id = result.getInt("id");
-                int fromId = result.getInt("from_id");
-                String filename = result.getString("file_name");
-                
-                // reads file
-                File file = new File("dowloadedFiles/" + filename);
-                FileOutputStream output = new FileOutputStream(file);
-                
-                InputStream input = result.getBinaryStream("file");
-                byte[] buffer = new byte[1024];
-                while (input.read(buffer) > 0) {
-                    output.write(buffer);
-                }
-                files.add(new FileMessage(id, file, chatId, fromId, filename));
+        statement = connection.prepareStatement("SELECT * FROM Files WHERE chat_id=?");
+        statement.setInt(1, chatId);
+        ResultSet result = statement.executeQuery();
+
+        while(result.next()){
+            int id = result.getInt("id");
+            int fromId = result.getInt("from_id");
+            String filename = result.getString("file_name");
+
+            // reads file
+            File file = new File("dowloadedFiles/" + filename);
+            FileOutputStream output = new FileOutputStream(file);
+
+            InputStream input = result.getBinaryStream("file");
+            byte[] buffer = new byte[1024];
+            while (input.read(buffer) > 0) {
+                output.write(buffer);
             }
-        } catch (SQLException ex) {
-            Logger.getLogger(Database.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (IOException ex) {
-            Logger.getLogger(Database.class.getName()).log(Level.SEVERE, null, ex);
+            files.add(new FileMessage(id, file, chatId, fromId, filename));
         }
         return files;
     }
     
-    public void registerUser(User user){
+    public void registerUser(User user) throws SQLException{
         
-        try {
-            statement = connection.prepareStatement("INSERT INTO Users (username, password, accepted_extensions)"
-                    + " VALUES (?,?,?)");
-            statement.setString(1, user.getUsername());
-            statement.setString(2, user.getPassword());
-            statement.setString(3, user.getExtensionsString());
-            statement.execute();
-            
-        } catch (SQLException ex) {
-            Logger.getLogger(Database.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        statement = connection.prepareStatement("INSERT INTO Users (username, password, accepted_extensions, is_available)"
+                + " VALUES (?,?,?,?)");
+        statement.setString(1, user.getUsername());
+        statement.setString(2, user.getPassword());
+        statement.setString(3, user.getExtensions());
+        statement.setBoolean(4, user.isAvailable());
+        statement.execute();
     }
     
     public User findUser(String username){
@@ -119,7 +113,8 @@ public class Database {
                 int id = result.getInt("id");
                 String password = result.getString("password");
                 String extensions = result.getString("accepted_extensions");
-                return new User(id, username, password, extensions);
+                boolean isAvailable = result.getBoolean("is_available");
+                return new User(id, username, password, extensions, isAvailable);
                 
             }else{  // user doesn't exist
                 return null;
@@ -130,17 +125,28 @@ public class Database {
         }        
     }
     
-    public void createChat(Chat chat){
+    public void connectUser(User user) throws SQLException{
         
-        try {
-            statement = connection.prepareStatement("INSERT INTO Chats (user1_id, user2_id) VALUES (?,?)");
-            statement.setInt(1, chat.getUser1Id());
-            statement.setInt(2, chat.getUser2Id());
-            statement.execute();
-            
-        } catch (SQLException ex) {
-            Logger.getLogger(Database.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        statement = connection.prepareStatement("UPDATE Users SET is_available=? WHERE id=?");
+        statement.setBoolean(1, true);
+        statement.setInt(2, user.getId());
+        statement.execute();
+    }
+    
+    public void disconnectUser(User user) throws SQLException{
+        
+        statement = connection.prepareStatement("UPDATE Users SET is_available=? WHERE id=?");
+        statement.setBoolean(1, false);
+        statement.setInt(2, user.getId());
+        statement.execute();
+    }
+    
+    public void createChat(Chat chat) throws SQLException{
+        
+        statement = connection.prepareStatement("INSERT INTO Chats (user1_id, user2_id) VALUES (?,?)");
+        statement.setInt(1, chat.getUser1Id());
+        statement.setInt(2, chat.getUser2Id());
+        statement.execute();
     }
     
     public Chat getChat(Chat chat){

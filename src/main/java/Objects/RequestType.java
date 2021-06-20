@@ -18,5 +18,7 @@ public enum RequestType {
     GET_CURRENT_USER,
     CREATE_CHAT,
     SEND_FILE,
-    GET_FILES
+    GET_FILES,
+    CHANGE_EXTENSIONS,
+    CHECK_USER_AVAILABLE
 }

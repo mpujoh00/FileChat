@@ -7,8 +7,8 @@ package Application;
 
 import Client.Client;
 import java.util.ArrayList;
-import javax.swing.filechooser.FileFilter;
-import javax.swing.filechooser.FileNameExtensionFilter;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  *
@@ -23,11 +23,38 @@ public class AcceptedExtensionsInterface extends javax.swing.JFrame {
     public AcceptedExtensionsInterface(Client client) {
         initComponents();
         this.client = client;
+        setExtensions();
     }
-
-    private void getExtensions(){
+    
+    private void setExtensions(){
         
-        
+        String extensionsString = client.getAcceptedExtensions();
+        List<String> extensions = Arrays.asList(extensionsString.split(","));
+                
+        if(extensions.contains("jpg")){
+            jpgExtension.setSelected(true);
+        }
+        else{
+            jpgExtension.setSelected(false);
+        }
+        if(extensions.contains("png")){
+            pngExtension.setSelected(true);
+        }
+        else{
+            pngExtension.setSelected(false);
+        }
+        if(extensions.contains("txt")){
+            txtExtension.setSelected(true);
+        }
+        else{
+            txtExtension.setSelected(false);
+        }
+        if(extensions.contains("pdf")){
+            pdfExtension.setSelected(true);
+        }
+        else{
+            pdfExtension.setSelected(false);
+        }
     }
     
     /**
@@ -55,11 +82,6 @@ public class AcceptedExtensionsInterface extends javax.swing.JFrame {
         pngExtension.setText("PNG");
         pngExtension.setBorder(null);
         pngExtension.setContentAreaFilled(false);
-        pngExtension.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                pngExtensionActionPerformed(evt);
-            }
-        });
 
         txtExtension.setFont(new java.awt.Font("Arial", 0, 14)); // NOI18N
         txtExtension.setForeground(new java.awt.Color(0, 0, 0));
@@ -67,22 +89,12 @@ public class AcceptedExtensionsInterface extends javax.swing.JFrame {
         txtExtension.setBorder(null);
         txtExtension.setBorderPainted(true);
         txtExtension.setContentAreaFilled(false);
-        txtExtension.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                txtExtensionActionPerformed(evt);
-            }
-        });
 
         jpgExtension.setFont(new java.awt.Font("Arial", 0, 14)); // NOI18N
         jpgExtension.setForeground(new java.awt.Color(0, 0, 0));
         jpgExtension.setText("JPG");
         jpgExtension.setBorder(null);
         jpgExtension.setContentAreaFilled(false);
-        jpgExtension.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jpgExtensionActionPerformed(evt);
-            }
-        });
 
         pdfExtension.setFont(new java.awt.Font("Arial", 0, 14)); // NOI18N
         pdfExtension.setForeground(new java.awt.Color(0, 0, 0));
@@ -90,11 +102,6 @@ public class AcceptedExtensionsInterface extends javax.swing.JFrame {
         pdfExtension.setBorder(null);
         pdfExtension.setBorderPainted(true);
         pdfExtension.setContentAreaFilled(false);
-        pdfExtension.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                pdfExtensionActionPerformed(evt);
-            }
-        });
 
         jButton1.setBackground(new java.awt.Color(179, 132, 152));
         jButton1.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
@@ -154,38 +161,22 @@ public class AcceptedExtensionsInterface extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void pngExtensionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_pngExtensionActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_pngExtensionActionPerformed
-
-    private void txtExtensionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtExtensionActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_txtExtensionActionPerformed
-
-    private void jpgExtensionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jpgExtensionActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jpgExtensionActionPerformed
-
-    private void pdfExtensionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_pdfExtensionActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_pdfExtensionActionPerformed
-
     private void saveExtensions(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_saveExtensions
-        ArrayList<FileFilter> extensions = new ArrayList<FileFilter>();
+        ArrayList<String> extensions = new ArrayList<>();
         if(jpgExtension.isSelected()){
-            extensions.add(new FileNameExtensionFilter("JPG image", "jpg"));
+            extensions.add("jpg");
         }
-        else if(pngExtension.isSelected()){
-            extensions.add(new FileNameExtensionFilter("PNG image", "png"));
+        if(pngExtension.isSelected()){
+            extensions.add("png");
         }
-        else if(txtExtension.isSelected()){
-            extensions.add(new FileNameExtensionFilter("TXT file", "txt"));
+        if(txtExtension.isSelected()){
+            extensions.add("txt");
         }
-        else if(pdfExtension.isSelected()){
-            extensions.add(new FileNameExtensionFilter("PDF file", "pdf"));
+        if(pdfExtension.isSelected()){
+            extensions.add("pdf");
         }
-        client.changeAcceptedExtensions(extensions);
-        
+        client.changeAcceptedExtensions(String.join(",", extensions));
+        dispose();
     }//GEN-LAST:event_saveExtensions
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

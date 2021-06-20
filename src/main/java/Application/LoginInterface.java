@@ -153,7 +153,7 @@ public class LoginInterface extends javax.swing.JFrame {
                 
         if(success){
             dispose();
-            new ChatInterface(client).setVisible(true);
+            new MainInterface(client).setVisible(true);
         }
         else{ // already picked username
             JOptionPane.showMessageDialog(this, "Username already exists");
@@ -170,9 +170,13 @@ public class LoginInterface extends javax.swing.JFrame {
         else if(answer == 401) {  // incorrect password
             JOptionPane.showMessageDialog(this, "Incorrect password");
         }
+        else if(answer == 404){
+            JOptionPane.showMessageDialog(this, "Not found");
+        }
         else{  // correct login
             dispose();
-            new ChatInterface(client).setVisible(true);
+            new MainInterface(client).setVisible(true);
+            //new ChatSimple(client).setVisible(true);
         }
     }//GEN-LAST:event_loginClicked
 

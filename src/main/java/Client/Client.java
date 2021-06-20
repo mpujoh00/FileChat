@@ -12,6 +12,7 @@ import java.io.File;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.filechooser.FileFilter;
@@ -47,6 +48,54 @@ public class Client {
         out.close();
         in.close();
         clientSocket.close();
+    }
+    
+    public boolean checkUserConnected(String username){
+        
+        boolean isAvailable = false;
+        try {
+            Request request = new Request(username, RequestType.CHECK_USER_AVAILABLE);
+            out.writeObject(request);
+            
+            Response response = (Response)in.readObject();
+            isAvailable = (boolean)response.getObject();
+            
+        } catch (IOException ex) {
+            Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (ClassNotFoundException ex) {
+            Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return isAvailable;
+    }
+    
+    public User getCurrentUser(){
+        
+        User user = null;
+        try {
+            out.writeObject(new Request(RequestType.GET_CURRENT_USER));
+            Response response = (Response)in.readObject();
+            user = (User)response.getObject();
+        } catch (IOException ex) {
+            Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (ClassNotFoundException ex) {
+            Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return user;
+    }
+    
+    public User getUser(String username){
+        
+        User user = null;
+        try {
+            out.writeObject(new Request(username, RequestType.GET_USER));
+            Response response = (Response)in.readObject();
+            user = (User)response.getObject();
+        } catch (IOException ex) {
+            Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (ClassNotFoundException ex) {
+            Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return user;
     }
     
     public int sendFile(File file){
@@ -99,11 +148,47 @@ public class Client {
         }        
     }
     
-    public void changeAcceptedExtensions(ArrayList<FileFilter> extensions){
+    public int changeAcceptedExtensions(String extensions){
         
-        
+        int code = 400;
+        try {
+            out.writeObject(new Request(extensions, RequestType.CHANGE_EXTENSIONS));
+            Response response = (Response)in.readObject();
+            System.out.println(response.printMessage());
+            code = response.getCode();
+        } catch (IOException ex) {
+            code = 404;
+            Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (ClassNotFoundException ex) {
+            code = 404;
+            Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return code;
     }
     
+    public String getAcceptedExtensions(){
+        
+        User user = getCurrentUser();
+        if(user == null){
+            return "";
+        }
+        return user.getExtensions();
+    }
+    
+    public String getAcceptedExtensions(String username){
+        
+        User user = null;
+        try {
+            out.writeObject(new Request(username, RequestType.GET_USER));
+            Response response = (Response)in.readObject();
+            user = (User)response.getObject();
+        } catch (Exception e) {
+        } 
+        if(user == null){
+            return "";
+        }
+        return user.getExtensions();
+    }
     
     public boolean register(String username, String password){
         
@@ -136,20 +221,21 @@ public class Client {
             System.out.println(response.printMessage());
             code = response.getCode();
                         
-        } catch (IOException ex) {
-        } catch (ClassNotFoundException ex) {
-            Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex){
+            System.err.println(ex);
+            code = 404;
+        }catch (ClassNotFoundException ex) {
+            System.err.println(ex);
+            code = 404;
         }
         return code;
     }
     
-    public int newChat(String friendUsername) throws IOException, ClassNotFoundException{
-        
-        int code = 400;
+    public Chat newChat(String friendUsername) throws IOException, ClassNotFoundException{
         
         // checks if the user exists
         if(!checkUserExists(friendUsername)){
-            return code;
+            return null;
         }
         // creates the chat
         Request request = new Request(friendUsername, RequestType.CREATE_CHAT);
@@ -160,7 +246,7 @@ public class Client {
         System.out.println(response.printMessage());
         Chat chat = (Chat)response.getObject();
         
-        return code;
+        return chat;
     }
     
     public boolean checkUserExists(String username) throws IOException, ClassNotFoundException{
@@ -178,7 +264,6 @@ public class Client {
         }else{
             return false;
         }
-
     }
     
     public void sendMessage(String message) throws IOException, ClassNotFoundException{

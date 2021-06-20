@@ -1,6 +1,6 @@
 import Client.Client;
 import Server.Server;
-import Application.ChatInterface;
+import Application.MainInterface;
 import java.io.IOException;
 
 public class Main {
