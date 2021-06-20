@@ -61,7 +61,6 @@ public class Server {
         database.closeConnection();
     }
 
-
     // each thread represents a client
     private static class ClientHandler extends Thread {
 
@@ -189,7 +188,6 @@ public class Server {
             }
             catch(IOException e){
             }
-            
         }
         
         public void receiveFile(FileMessage fileMessage){

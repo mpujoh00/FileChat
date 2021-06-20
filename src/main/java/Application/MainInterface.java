@@ -36,7 +36,7 @@ public class MainInterface extends javax.swing.JFrame {
     private int currentChat;
     private String currentFriend;
     
-    /**
+    /** 
      * Creates new form chat
      */
     public MainInterface(Client client) {
@@ -50,6 +50,8 @@ public class MainInterface extends javax.swing.JFrame {
         
         this.currentUser = client.getCurrentUser();
         this.currentFriend = null;
+        
+        setTitle(currentUser.getUsername());
         
         updateChats();
     }
@@ -312,6 +314,7 @@ public class MainInterface extends javax.swing.JFrame {
             .addComponent(friendExtensions, javax.swing.GroupLayout.DEFAULT_SIZE, 65, Short.MAX_VALUE)
         );
 
+        friendStatus.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
         friendStatus.setForeground(new java.awt.Color(0, 0, 0));
 
         jPanel3.setBackground(new java.awt.Color(207, 124, 160));
@@ -434,7 +437,7 @@ public class MainInterface extends javax.swing.JFrame {
         if(friendUsername != null && friendUsername != ""){
             try {
                 Chat chat = client.newChat(friendUsername);
-                addChatToInterface(client.getUser(friendUsername), chat);
+                updateChats();
                 changeCurrentChat(chat.getId(), friendUsername);
 
             } catch (IOException ex) {

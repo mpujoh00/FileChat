@@ -5,7 +5,6 @@
  */
 package Client;
 
-import Application.MainInterface;
 import Application.LoginInterface;
 import java.io.IOException;
 

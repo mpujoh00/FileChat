@@ -28,7 +28,7 @@ public class Database {
     private final String url = "jdbc:mysql://remotemysql.com:3306/dq2fDwEP6r";
     private final String user = "dq2fDwEP6r";
     private final String password = "eCSdwdyUFv";
-    private Connection connection;
+    private Connection connection; 
     private PreparedStatement statement;
     
     public Database(){
