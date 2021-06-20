@@ -7,17 +7,21 @@ package Application;
 
 import Client.Client;
 import Objects.Chat;
+import Objects.FileMessage;
 import Objects.User;
-import Server.Server;
 import java.awt.Color;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import org.apache.commons.io.FilenameUtils;
 
 /**
@@ -29,8 +33,8 @@ public class MainInterface extends javax.swing.JFrame {
     private final JFileChooser openFileChooser;
     private Client client;
     private User currentUser;
-    private Server server;
-    private static final int CHAT_BOX_WIDTH = 150;
+    private int currentChat;
+    private String currentFriend;
     
     /**
      * Creates new form chat
@@ -45,32 +49,97 @@ public class MainInterface extends javax.swing.JFrame {
         this.client = client;
         
         this.currentUser = client.getCurrentUser();
+        this.currentFriend = null;
+        
+        updateChats();
     }
     
     private void addMessageToChat(File file, String username){
         
         Color color;
-        if(currentUser.getUsername() == username){  // current user sending
-            color = new Color(135, 187, 130);
+        if(currentUser.getUsername().equals(username)){  // current user sending
+            color = new Color(174, 217, 171);
         }
         else{  // from the other user
-            color = new Color(148, 205, 142);
+            color = new Color(146, 184, 142);
         }        
         MessageInterface message = new MessageInterface(color, username, file);
-        chatPanel.add(message.getMessage());
+        JPanel panel = message.getMessage();
+        chatPanel.add(panel);
         chatPanel.revalidate();
         chatPanel.repaint();
     }
     
     private void addChatToInterface(User friend, Chat chat){
               
-        ChatInterface message = new ChatInterface(friend, chat);
-        listChatsPanel.add(message.getChatPanel());
+        ChatInterface chatInterface = new ChatInterface(friend, chat);
+        JPanel panel = chatInterface.getChatPanel();
+        panel.addMouseListener(new MouseAdapter() { 
+          public void mouseClicked(MouseEvent me) { 
+              changeCurrentChat(chatInterface.getChat().getId(), chatInterface.getUser().getUsername());
+          } 
+        }); 
+        listChatsPanel.add(panel);
         listChatsPanel.revalidate();
         listChatsPanel.repaint();
     }
     
-
+    private void updateChats(){
+        
+        listChatsPanel.removeAll();
+        listChatsPanel.revalidate();
+        listChatsPanel.repaint();
+        ArrayList<Chat> chats = (ArrayList<Chat>) client.getChats();
+        for(Chat chat: chats){
+            int friendId;
+            if(currentUser.getId() == chat.getUser1Id()){
+                friendId = chat.getUser2Id();
+            }else{
+                friendId = chat.getUser1Id();
+            }
+            User friend = client.getUser(friendId);
+            addChatToInterface(friend, chat);
+        }        
+    }
+    
+    private void updateChatMessages(){
+        
+        chatPanel.removeAll();
+        chatPanel.revalidate();
+        chatPanel.repaint();
+        ArrayList<FileMessage> files = (ArrayList<FileMessage>) client.getFilesFromChat(currentChat);
+        for(FileMessage file: files){
+             
+            User sendingUser = client.getUser(file.getUserFromId());
+            addMessageToChat(file.getFile(), sendingUser.getUsername());
+        }
+    }
+    
+    private void changeCurrentChat(int chatId, String username){
+        
+        this.currentFriend = username;
+        this.currentChat = chatId;
+        
+        updateChat();
+    }
+    
+    private void updateChat(){
+        
+        User friend = client.getUser(currentFriend);  // updates
+        
+        // changes header
+        friendUsername.setText(friend.getUsername());
+        if(friend.isAvailable()){
+            friendStatus.setText("Available");
+        }else{
+            friendStatus.setText("Unavailable");
+        }
+        headerPanel.revalidate();
+        headerPanel.repaint();
+        
+        updateChatMessages();
+    }
+    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -90,11 +159,13 @@ public class MainInterface extends javax.swing.JFrame {
         jPanel7 = new javax.swing.JPanel();
         jPanel8 = new javax.swing.JPanel();
         sendFile = new javax.swing.JLabel();
-        jPanel3 = new javax.swing.JPanel();
-        jLabel4 = new javax.swing.JLabel();
+        headerPanel = new javax.swing.JPanel();
+        friendUsername = new javax.swing.JLabel();
         jPanel6 = new javax.swing.JPanel();
-        jLabel6 = new javax.swing.JLabel();
-        jLabel5 = new javax.swing.JLabel();
+        friendExtensions = new javax.swing.JLabel();
+        friendStatus = new javax.swing.JLabel();
+        jPanel3 = new javax.swing.JPanel();
+        jLabel2 = new javax.swing.JLabel();
         chatPanel = new javax.swing.JPanel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
@@ -115,7 +186,7 @@ public class MainInterface extends javax.swing.JFrame {
         jPanel4.setBackground(new java.awt.Color(245, 163, 199));
 
         jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLabel1.setIcon(new javax.swing.ImageIcon("C:\\Users\\kaela\\Documents\\NetBeansProjects\\fileChat\\src\\main\\java\\Images\\icons8-male-user-32.png")); // NOI18N
+        jLabel1.setIcon(new javax.swing.ImageIcon("C:\\Users\\kaela\\Documents\\NetBeansProjects\\fileChat\\src\\main\\java\\Images\\icons8-user-32.png")); // NOI18N
         jLabel1.setMaximumSize(new java.awt.Dimension(32, 65));
         jLabel1.setMinimumSize(new java.awt.Dimension(32, 65));
         jLabel1.setPreferredSize(new java.awt.Dimension(32, 65));
@@ -137,7 +208,7 @@ public class MainInterface extends javax.swing.JFrame {
             .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
 
-        jPanel14.setBackground(new java.awt.Color(148, 205, 142));
+        jPanel14.setBackground(new java.awt.Color(207, 124, 160));
         jPanel14.setPreferredSize(new java.awt.Dimension(0, 58));
 
         jLabel7.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
@@ -162,7 +233,8 @@ public class MainInterface extends javax.swing.JFrame {
             .addComponent(jLabel7, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 58, Short.MAX_VALUE)
         );
 
-        listChatsPanel.setBackground(new java.awt.Color(151, 153, 155));
+        listChatsPanel.setBackground(new java.awt.Color(161, 163, 165));
+        listChatsPanel.setForeground(new java.awt.Color(0, 0, 0));
         listChatsPanel.setLayout(new javax.swing.BoxLayout(listChatsPanel, javax.swing.BoxLayout.Y_AXIS));
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
@@ -189,7 +261,7 @@ public class MainInterface extends javax.swing.JFrame {
         jPanel8.setBackground(new java.awt.Color(245, 163, 199));
 
         sendFile.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
-        sendFile.setForeground(new java.awt.Color(255, 255, 255));
+        sendFile.setForeground(new java.awt.Color(0, 0, 0));
         sendFile.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         sendFile.setIcon(new javax.swing.ImageIcon("C:\\Users\\kaela\\Documents\\NetBeansProjects\\fileChat\\src\\main\\java\\Images\\icons8-file-arrow-32.png")); // NOI18N
         sendFile.setText("Send file");
@@ -210,21 +282,20 @@ public class MainInterface extends javax.swing.JFrame {
             .addComponent(sendFile, javax.swing.GroupLayout.DEFAULT_SIZE, 58, Short.MAX_VALUE)
         );
 
-        jPanel3.setBackground(new java.awt.Color(207, 124, 160));
-        jPanel3.setMaximumSize(new java.awt.Dimension(429, 65));
-        jPanel3.setMinimumSize(new java.awt.Dimension(429, 65));
-        jPanel3.setName(""); // NOI18N
-        jPanel3.setPreferredSize(new java.awt.Dimension(429, 65));
+        headerPanel.setBackground(new java.awt.Color(207, 124, 160));
+        headerPanel.setMaximumSize(new java.awt.Dimension(429, 65));
+        headerPanel.setMinimumSize(new java.awt.Dimension(429, 65));
+        headerPanel.setName(""); // NOI18N
+        headerPanel.setPreferredSize(new java.awt.Dimension(429, 65));
 
-        jLabel4.setFont(new java.awt.Font("Arial", 1, 20)); // NOI18N
-        jLabel4.setForeground(new java.awt.Color(0, 0, 0));
-        jLabel4.setText("Hande Ceren");
+        friendUsername.setFont(new java.awt.Font("Arial", 1, 20)); // NOI18N
+        friendUsername.setForeground(new java.awt.Color(0, 0, 0));
 
         jPanel6.setBackground(new java.awt.Color(207, 124, 160));
 
-        jLabel6.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLabel6.setIcon(new javax.swing.ImageIcon("C:\\Users\\kaela\\Documents\\NetBeansProjects\\fileChat\\src\\main\\java\\Images\\icons8-happy-file-32.png")); // NOI18N
-        jLabel6.addMouseListener(new java.awt.event.MouseAdapter() {
+        friendExtensions.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        friendExtensions.setIcon(new javax.swing.ImageIcon("C:\\Users\\kaela\\Documents\\NetBeansProjects\\fileChat\\src\\main\\java\\Images\\icons8-happy-file-32.png")); // NOI18N
+        friendExtensions.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 getAcceptedExtensions(evt);
             }
@@ -234,39 +305,64 @@ public class MainInterface extends javax.swing.JFrame {
         jPanel6.setLayout(jPanel6Layout);
         jPanel6Layout.setHorizontalGroup(
             jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jLabel6, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 57, Short.MAX_VALUE)
+            .addComponent(friendExtensions, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 57, Short.MAX_VALUE)
         );
         jPanel6Layout.setVerticalGroup(
             jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jLabel6, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(friendExtensions, javax.swing.GroupLayout.DEFAULT_SIZE, 65, Short.MAX_VALUE)
         );
 
-        jLabel5.setForeground(new java.awt.Color(0, 0, 0));
-        jLabel5.setText("Online");
+        friendStatus.setForeground(new java.awt.Color(0, 0, 0));
+
+        jPanel3.setBackground(new java.awt.Color(207, 124, 160));
+        jPanel3.setPreferredSize(new java.awt.Dimension(57, 32));
+
+        jLabel2.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabel2.setIcon(new javax.swing.ImageIcon("C:\\Users\\kaela\\Documents\\NetBeansProjects\\fileChat\\src\\main\\java\\Images\\icons8-refresh-32.png")); // NOI18N
+        jLabel2.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                refreshClicked(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
         jPanel3.setLayout(jPanel3Layout);
         jPanel3Layout.setHorizontalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel3Layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel3Layout.createSequentialGroup()
-                        .addGap(10, 10, 10)
-                        .addComponent(jLabel5, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                    .addComponent(jLabel4, javax.swing.GroupLayout.DEFAULT_SIZE, 354, Short.MAX_VALUE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jPanel6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+            .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, 57, Short.MAX_VALUE)
         );
         jPanel3Layout.setVerticalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+        );
+
+        javax.swing.GroupLayout headerPanelLayout = new javax.swing.GroupLayout(headerPanel);
+        headerPanel.setLayout(headerPanelLayout);
+        headerPanelLayout.setHorizontalGroup(
+            headerPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(headerPanelLayout.createSequentialGroup()
+                .addGroup(headerPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(headerPanelLayout.createSequentialGroup()
+                        .addGap(16, 16, 16)
+                        .addComponent(friendStatus, javax.swing.GroupLayout.DEFAULT_SIZE, 299, Short.MAX_VALUE))
+                    .addGroup(headerPanelLayout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(friendUsername, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                .addGap(0, 0, 0)
+                .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 0, 0)
+                .addComponent(jPanel6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+        );
+        headerPanelLayout.setVerticalGroup(
+            headerPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addComponent(jPanel6, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addGroup(jPanel3Layout.createSequentialGroup()
+            .addGroup(headerPanelLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jLabel4, javax.swing.GroupLayout.DEFAULT_SIZE, 37, Short.MAX_VALUE)
+                .addComponent(friendUsername, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGap(2, 2, 2)
-                .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 14, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(friendStatus, javax.swing.GroupLayout.PREFERRED_SIZE, 14, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
+            .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, 65, Short.MAX_VALUE)
         );
 
         chatPanel.setBackground(new java.awt.Color(209, 210, 212));
@@ -277,20 +373,20 @@ public class MainInterface extends javax.swing.JFrame {
         jPanel7Layout.setHorizontalGroup(
             jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addComponent(jPanel8, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(headerPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addComponent(chatPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         jPanel7Layout.setVerticalGroup(
             jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel7Layout.createSequentialGroup()
-                .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(headerPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(0, 0, 0)
                 .addComponent(chatPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 313, Short.MAX_VALUE)
                 .addGap(0, 0, 0)
                 .addComponent(jPanel8, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
 
-        jPanel3.getAccessibleContext().setAccessibleName("");
+        headerPanel.getAccessibleContext().setAccessibleName("");
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -335,42 +431,60 @@ public class MainInterface extends javax.swing.JFrame {
     private void createNewChat(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_createNewChat
          
         String friendUsername = JOptionPane.showInputDialog(this, "Friend's username:");
-        
-        try {
-            Chat chat = client.newChat(friendUsername);
-            addChatToInterface(client.getUser(friendUsername), chat);
-            
-        } catch (IOException ex) {
-            Logger.getLogger(MainInterface.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (ClassNotFoundException ex) {
-            Logger.getLogger(MainInterface.class.getName()).log(Level.SEVERE, null, ex);
-        }               
+        if(friendUsername != null && friendUsername != ""){
+            try {
+                Chat chat = client.newChat(friendUsername);
+                addChatToInterface(client.getUser(friendUsername), chat);
+                changeCurrentChat(chat.getId(), friendUsername);
+
+            } catch (IOException ex) {
+                Logger.getLogger(MainInterface.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (ClassNotFoundException ex) {
+                Logger.getLogger(MainInterface.class.getName()).log(Level.SEVERE, null, ex);
+            } 
+        }
     }//GEN-LAST:event_createNewChat
 
     private void sendFileClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_sendFileClicked
 
-        int actionDone = openFileChooser.showOpenDialog(this);
+        
+        User friend = client.getUser(this.currentFriend);
+        
+        // friend connected, can send file
+        if(friend != null && friend.isAvailable()){
+            
+            int actionDone = openFileChooser.showOpenDialog(this);
 
-        // a file has been chosen
-        if(actionDone == JFileChooser.APPROVE_OPTION){
+            // a file has been chosen
+            if(actionDone == JFileChooser.APPROVE_OPTION){
 
-            File sendingFile = openFileChooser.getSelectedFile(); 
-            
-            // checks if it's an allowed extension
-            String acceptedExtensions = client.getAcceptedExtensions("maybeitsmica");
-            List<String> extensionsArray = Arrays.asList(acceptedExtensions.split(","));
-            
-            String extension = FilenameUtils.getExtension(sendingFile.getName());
-            
-            // extension not allowed
-            if(!extensionsArray.contains(extension)){
-                JOptionPane.showMessageDialog(this, "File's extension not accepted");
+                File sendingFile = openFileChooser.getSelectedFile(); 
+
+                // checks if it's an allowed extension
+                String acceptedExtensions = client.getAcceptedExtensions(currentFriend);
+                List<String> extensionsArray = Arrays.asList(acceptedExtensions.split(","));
+
+                String extension = FilenameUtils.getExtension(sendingFile.getName());
+
+                // extension not allowed
+                if(!extensionsArray.contains(extension)){
+                    JOptionPane.showMessageDialog(this, "File's extension not accepted");
+                }
+                else{  // extension allowed, sends the file
+                    try {
+                        client.sendMessage("File chosen!");
+                        client.sendFile(sendingFile, currentChat);
+                        addMessageToChat(sendingFile, currentUser.getUsername());
+                    } catch (IOException ex) {
+                        Logger.getLogger(MainInterface.class.getName()).log(Level.SEVERE, null, ex);
+                    } catch (ClassNotFoundException ex) {
+                        Logger.getLogger(MainInterface.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }
             }
-            else{  // extension allowed, sends the file
+            else{  // action canceled
                 try {
-                    client.sendMessage("File chosen!");
-                    client.sendFile(sendingFile);
-                    addMessageToChat(sendingFile, currentUser.getUsername());
+                    client.sendMessage("No file was chosen (cancel)");
                 } catch (IOException ex) {
                     Logger.getLogger(MainInterface.class.getName()).log(Level.SEVERE, null, ex);
                 } catch (ClassNotFoundException ex) {
@@ -378,17 +492,12 @@ public class MainInterface extends javax.swing.JFrame {
                 }
             }
         }
-        else{  // action canceled
-            try {
-                client.sendMessage("No file was chosen (cancel)");
-            } catch (IOException ex) {
-                Logger.getLogger(MainInterface.class.getName()).log(Level.SEVERE, null, ex);
-            } catch (ClassNotFoundException ex) {
-                Logger.getLogger(MainInterface.class.getName()).log(Level.SEVERE, null, ex);
-            }
+        else if(friend != null){  // friend disconnected, can't send file
+            JOptionPane.showMessageDialog(this, "Can't send files to unavailable users");
         }
-        
-        //client.getFilesFromChat(2);
+        else{  // no chat selected
+            JOptionPane.showMessageDialog(this, "First select a chat");
+        }
     }//GEN-LAST:event_sendFileClicked
 
     private void changeAcceptedExtensions(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_changeAcceptedExtensions
@@ -399,17 +508,23 @@ public class MainInterface extends javax.swing.JFrame {
 
     private void getAcceptedExtensions(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_getAcceptedExtensions
         
-        String acceptedExtensions = client.getAcceptedExtensions("maybeitsmica");
+        String acceptedExtensions = client.getAcceptedExtensions(this.currentFriend);
         acceptedExtensions = acceptedExtensions.replaceAll(",", ", ");
         JOptionPane.showMessageDialog(this, "Accepted file extensions:\n" + acceptedExtensions);
     }//GEN-LAST:event_getAcceptedExtensions
 
+    private void refreshClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_refreshClicked
+        updateChat();
+    }//GEN-LAST:event_refreshClicked
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel chatPanel;
+    private javax.swing.JLabel friendExtensions;
+    private javax.swing.JLabel friendStatus;
+    private javax.swing.JLabel friendUsername;
+    private javax.swing.JPanel headerPanel;
     private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel4;
-    private javax.swing.JLabel jLabel5;
-    private javax.swing.JLabel jLabel6;
+    private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel7;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel14;

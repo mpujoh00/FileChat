@@ -5,12 +5,14 @@
  */
 package Application;
 
+import Objects.FileMessage;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.io.File;
 import javax.swing.BoxLayout;
+import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
@@ -34,7 +36,7 @@ public class MessageInterface {
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
         panel.setPreferredSize(new Dimension(60,40));
         panel.setMinimumSize(new Dimension(60,40));
-        panel.setMaximumSize(new Dimension(300,40));
+        panel.setMaximumSize(new Dimension(500,40));
         panel.setBorder(new EmptyBorder(10, 15, 0, 0));
         
         JLabel label = new JLabel(user + ": " + file.getName(), SwingConstants.LEFT);
@@ -48,6 +50,10 @@ public class MessageInterface {
         panel.setAlignmentX(Component.LEFT_ALIGNMENT);
     }
     
+    public File getFile(){
+        return this.file;
+    }
+       
     public JPanel getMessage(){
         return this.panel;
     }

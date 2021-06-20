@@ -44,30 +44,25 @@ public class LoginInterface extends javax.swing.JFrame {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
-        jPanel1.setBackground(new java.awt.Color(122, 169, 117));
+        jPanel1.setBackground(new java.awt.Color(249, 200, 221));
 
         jLabel1.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
-        jLabel1.setForeground(new java.awt.Color(249, 200, 221));
+        jLabel1.setForeground(new java.awt.Color(0, 0, 0));
         jLabel1.setText("Username");
 
         username.setBackground(new java.awt.Color(207, 124, 160));
         username.setFont(new java.awt.Font("Arial", 0, 14)); // NOI18N
-        username.setForeground(new java.awt.Color(249, 200, 221));
+        username.setForeground(new java.awt.Color(0, 0, 0));
         username.setToolTipText("");
         username.setBorder(null);
-        username.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                usernameActionPerformed(evt);
-            }
-        });
 
         jLabel2.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
-        jLabel2.setForeground(new java.awt.Color(249, 200, 221));
+        jLabel2.setForeground(new java.awt.Color(0, 0, 0));
         jLabel2.setText("Password");
 
         signUpButton.setBackground(new java.awt.Color(207, 124, 160));
         signUpButton.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
-        signUpButton.setForeground(new java.awt.Color(249, 200, 221));
+        signUpButton.setForeground(new java.awt.Color(0, 0, 0));
         signUpButton.setText("Sign up");
         signUpButton.setBorder(null);
         signUpButton.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -78,7 +73,7 @@ public class LoginInterface extends javax.swing.JFrame {
 
         loginButton.setBackground(new java.awt.Color(207, 124, 160));
         loginButton.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
-        loginButton.setForeground(new java.awt.Color(249, 200, 221));
+        loginButton.setForeground(new java.awt.Color(0, 0, 0));
         loginButton.setText("Login");
         loginButton.setBorder(null);
         loginButton.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -88,6 +83,7 @@ public class LoginInterface extends javax.swing.JFrame {
         });
 
         password.setBackground(new java.awt.Color(207, 124, 160));
+        password.setForeground(new java.awt.Color(0, 0, 0));
         password.setBorder(null);
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
@@ -142,10 +138,6 @@ public class LoginInterface extends javax.swing.JFrame {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
-
-    private void usernameActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_usernameActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_usernameActionPerformed
 
     private void signUpClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_signUpClicked
         

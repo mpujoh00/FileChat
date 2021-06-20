@@ -58,6 +58,7 @@ public class Client {
             out.writeObject(request);
             
             Response response = (Response)in.readObject();
+            System.out.println(response.printMessage());
             isAvailable = (boolean)response.getObject();
             
         } catch (IOException ex) {
@@ -74,6 +75,7 @@ public class Client {
         try {
             out.writeObject(new Request(RequestType.GET_CURRENT_USER));
             Response response = (Response)in.readObject();
+            System.out.println(response.printMessage());
             user = (User)response.getObject();
         } catch (IOException ex) {
             Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
@@ -89,6 +91,7 @@ public class Client {
         try {
             out.writeObject(new Request(username, RequestType.GET_USER));
             Response response = (Response)in.readObject();
+            System.out.println(response.printMessage());
             user = (User)response.getObject();
         } catch (IOException ex) {
             Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
@@ -98,9 +101,25 @@ public class Client {
         return user;
     }
     
-    public int sendFile(File file){
+    public User getUser(int id){
         
-        int code = 400;
+        User user = null;
+        try {
+            out.writeObject(new Request(id, RequestType.GET_USER_BY_ID));
+            Response response = (Response)in.readObject();
+            System.out.println(response.printMessage());
+            user = (User)response.getObject();
+        } catch (IOException ex) {
+            Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (ClassNotFoundException ex) {
+            Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return user;
+    }
+    
+    public FileMessage sendFile(File file, int chatId){
+        
+        FileMessage fileMessage = null;
         try {
             // gets current user
             Request getUserRequest = new Request(RequestType.GET_CURRENT_USER);
@@ -109,43 +128,37 @@ public class Client {
             User user = (User)getUserResponse.getObject();
                         
             // sends the file
-            FileMessage fileMessage = new FileMessage(file, 2, user.getId(), file.getName());
+            fileMessage = new FileMessage(file, chatId, user.getId(), file.getName());
             Request request = new Request(fileMessage, RequestType.SEND_FILE);
             out.writeObject(request);
             Response response = (Response)in.readObject();
             System.out.println(response.printMessage());
-            code = response.getCode();
             
         } catch (IOException ex) {
             Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
         } catch (ClassNotFoundException ex) {
             Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
         }
-        return code;
+        return fileMessage;
     }
     
-    public void getFilesFromChat(int chatId){
+    public List<FileMessage> getFilesFromChat(int chatId){
         
+        ArrayList<FileMessage> files = new ArrayList<>();
         try {
-
-            Request request = new Request(2, RequestType.GET_FILES);
+            Request request = new Request(chatId, RequestType.GET_FILES);
             out.writeObject(request);
            
             Response response = (Response)in.readObject();
             System.out.println(response.printMessage());
-            ArrayList<FileMessage> files = (ArrayList<FileMessage>)response.getObject();
-            
-            System.out.println("Files in chat: " + chatId);
-            for(FileMessage file: files){
-                System.out.println(file.getFilename());
-                File savedFile = new File("C:\\Users\\kaela\\Descargas\\" + file.getFilename());
-            }
-            
+            files = (ArrayList<FileMessage>)response.getObject();
+                        
         } catch (IOException ex) {
             Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
         } catch (ClassNotFoundException ex) {
             Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
-        }        
+        }  
+        return files;
     }
     
     public int changeAcceptedExtensions(String extensions){
@@ -181,6 +194,7 @@ public class Client {
         try {
             out.writeObject(new Request(username, RequestType.GET_USER));
             Response response = (Response)in.readObject();
+            System.out.println(response.printMessage());
             user = (User)response.getObject();
         } catch (Exception e) {
         } 
@@ -249,6 +263,29 @@ public class Client {
         return chat;
     }
     
+    public List<Chat> getChats(){
+        
+        Request request = new Request(RequestType.GET_CHATS);
+        try {
+            out.writeObject(request);
+        } catch (IOException ex) {
+            Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+        Response response;
+        ArrayList<Chat> chats = new ArrayList<>();
+        try {
+            response = (Response)in.readObject();
+            System.out.println(response.printMessage());
+            chats = (ArrayList<Chat>)response.getObject();
+        } catch (IOException ex) {
+            Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (ClassNotFoundException ex) {
+            Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return chats;
+    }
+    
     public boolean checkUserExists(String username) throws IOException, ClassNotFoundException{
                 
         Request request = new Request(username, RequestType.GET_USER);
@@ -259,6 +296,7 @@ public class Client {
         }
 
         Response response = (Response)in.readObject();
+        System.out.println(response.printMessage());
         if(response.getCode() == 200){
             return true;
         }else{

@@ -76,13 +76,13 @@ public class Database {
             int fromId = result.getInt("from_id");
             String filename = result.getString("file_name");
 
-            // reads file
+            // downloads file
             File file = new File("dowloadedFiles/" + filename);
             FileOutputStream output = new FileOutputStream(file);
 
-            InputStream input = result.getBinaryStream("file");
+            InputStream fileData = result.getBinaryStream("file");
             byte[] buffer = new byte[1024];
-            while (input.read(buffer) > 0) {
+            while (fileData.read(buffer) > 0) {
                 output.write(buffer);
             }
             files.add(new FileMessage(id, file, chatId, fromId, filename));
@@ -111,6 +111,30 @@ public class Database {
             if(result.next()){  // user exists
                 
                 int id = result.getInt("id");
+                String password = result.getString("password");
+                String extensions = result.getString("accepted_extensions");
+                boolean isAvailable = result.getBoolean("is_available");
+                return new User(id, username, password, extensions, isAvailable);
+                
+            }else{  // user doesn't exist
+                return null;
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(Database.class.getName()).log(Level.SEVERE, null, ex);
+            return null;
+        }        
+    }
+    
+    public User findUser(int id){
+        
+        try {
+            statement = connection.prepareStatement("SELECT * FROM Users WHERE id=?");
+            statement.setInt(1, id);
+            ResultSet result = statement.executeQuery();
+            
+            if(result.next()){  // user exists
+                
+                String username = result.getString("username");
                 String password = result.getString("password");
                 String extensions = result.getString("accepted_extensions");
                 boolean isAvailable = result.getBoolean("is_available");
@@ -167,6 +191,33 @@ public class Database {
             Logger.getLogger(Database.class.getName()).log(Level.SEVERE, null, ex);
         }   
         return null;
+    }
+    
+    public List<Chat> getChats(int chatId) throws SQLException, FileNotFoundException, IOException{
+        
+        ArrayList<Chat> chats = new ArrayList<Chat>();
+        statement = connection.prepareStatement("SELECT * FROM Chats WHERE user1_id=? OR user2_id=?");
+        statement.setInt(1, chatId);
+        statement.setInt(2, chatId);
+        ResultSet result = statement.executeQuery();
+
+        while(result.next()){
+            int id = result.getInt("id");
+            int user1 = result.getInt("user1_id");
+            int user2 = result.getInt("user2_id");
+
+            chats.add(new Chat(id, user1, user2));
+        }
+        return chats;
+    }
+    
+    public void keepAlive(){
+        try {
+            statement = connection.prepareStatement("SELECT 1 AS keep_alive");
+            statement.execute();
+        } catch (SQLException ex) {
+            Logger.getLogger(Database.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
     
     public void closeConnection(){

@@ -75,14 +75,16 @@ public class AcceptedExtensionsInterface extends javax.swing.JFrame {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
-        jPanel1.setBackground(new java.awt.Color(148, 205, 142));
+        jPanel1.setBackground(new java.awt.Color(249, 200, 221));
 
+        pngExtension.setBackground(new java.awt.Color(209, 210, 212));
         pngExtension.setFont(new java.awt.Font("Arial", 0, 14)); // NOI18N
         pngExtension.setForeground(new java.awt.Color(0, 0, 0));
         pngExtension.setText("PNG");
         pngExtension.setBorder(null);
         pngExtension.setContentAreaFilled(false);
 
+        txtExtension.setBackground(new java.awt.Color(209, 210, 212));
         txtExtension.setFont(new java.awt.Font("Arial", 0, 14)); // NOI18N
         txtExtension.setForeground(new java.awt.Color(0, 0, 0));
         txtExtension.setText("TXT");
@@ -90,12 +92,14 @@ public class AcceptedExtensionsInterface extends javax.swing.JFrame {
         txtExtension.setBorderPainted(true);
         txtExtension.setContentAreaFilled(false);
 
+        jpgExtension.setBackground(new java.awt.Color(209, 210, 212));
         jpgExtension.setFont(new java.awt.Font("Arial", 0, 14)); // NOI18N
         jpgExtension.setForeground(new java.awt.Color(0, 0, 0));
         jpgExtension.setText("JPG");
         jpgExtension.setBorder(null);
         jpgExtension.setContentAreaFilled(false);
 
+        pdfExtension.setBackground(new java.awt.Color(209, 210, 212));
         pdfExtension.setFont(new java.awt.Font("Arial", 0, 14)); // NOI18N
         pdfExtension.setForeground(new java.awt.Color(0, 0, 0));
         pdfExtension.setText("PDF");
@@ -103,8 +107,8 @@ public class AcceptedExtensionsInterface extends javax.swing.JFrame {
         pdfExtension.setBorderPainted(true);
         pdfExtension.setContentAreaFilled(false);
 
-        jButton1.setBackground(new java.awt.Color(179, 132, 152));
-        jButton1.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
+        jButton1.setBackground(new java.awt.Color(207, 124, 160));
+        jButton1.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
         jButton1.setForeground(new java.awt.Color(0, 0, 0));
         jButton1.setText("Save");
         jButton1.setBorder(null);

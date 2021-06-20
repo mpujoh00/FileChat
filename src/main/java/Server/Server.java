@@ -13,6 +13,8 @@ import java.io.ObjectOutputStream;
 import java.net.*;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -27,6 +29,15 @@ public class Server {
         serverSocket = new ServerSocket(port);
         System.out.println("Server listening on port " + port);
         connectToDatabase();
+        
+        // keeping database connection alive
+        Timer timer = new Timer();
+        timer.schedule(new TimerTask() {
+          @Override
+          public void run() {
+              database.keepAlive();
+          }
+        }, 0, 90*1000); // waits 1:30 min
 
         // waits until a client requests connection with the server
         while(true) {
@@ -81,7 +92,6 @@ public class Server {
                         attendRequest(request);
                     }
                 }
-                disconnectUser();
                 in.close();
                 out.close();
                 clientSocket.close();
@@ -116,6 +126,7 @@ public class Server {
                     case SHUTDOWN:
                         input = (String)request.getObject();
                         System.out.println(input);
+                        disconnectUser();
                         out.writeObject("Server - Bye!");
                         exit = true;
                         break;
@@ -134,11 +145,26 @@ public class Server {
                         }
                         out.writeObject(response);
                         break;
+                        
+                    case GET_USER_BY_ID:
+                        int userId = (Integer)request.getObject();
+                        user = getUser(userId);
+                        if(user != null){
+                            response = new Response(200, user);
+                        }else{
+                            response = new Response(400);
+                        }
+                        out.writeObject(response);
+                        break;
                     
                     case CREATE_CHAT:
                         input = (String)request.getObject();
                         user = getUser(input);
                         createChat(user);
+                        break;
+                        
+                    case GET_CHATS:
+                        getChats();
                         break;
                         
                     case SEND_FILE:
@@ -260,6 +286,25 @@ public class Server {
             }            
         }
         
+        public void getChats(){
+            
+            ArrayList<Chat> chats = new ArrayList<>();
+            int code = 200;
+            try {
+                chats = (ArrayList<Chat>)database.getChats(currentUser.getId());
+            } catch (IOException ex) {
+                code = 500;
+                Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (SQLException ex) {
+                Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            try {
+                out.writeObject(new Response(code, chats));
+            } catch (IOException ex) {
+                Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+        
         public Chat getChat(User friend){
             
             return database.getChat(new Chat(currentUser.getId(), friend.getId()));
@@ -355,6 +400,9 @@ public class Server {
             return database.findUser(username);
         }
         
+        public User getUser(int id){
+            return database.findUser(id);
+        }
     }	
 	
 }

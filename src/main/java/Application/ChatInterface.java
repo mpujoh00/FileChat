@@ -43,12 +43,20 @@ public class ChatInterface {
         
         JLabel label = new JLabel(friend.getUsername(), SwingConstants.LEFT);
         label.setFont(new Font("arial", Font.BOLD, 16));
-        label.setForeground(Color.WHITE);
+        label.setForeground(Color.BLACK);
         label.setBorder(new EmptyBorder(5, 10, 5, 5));
         label.setAlignmentY(Component.CENTER_ALIGNMENT);
         
         panel.add(label);
         panel.setAlignmentX(Component.LEFT_ALIGNMENT);
+    }
+    
+    public Chat getChat(){
+        return this.chat;
+    }
+    
+    public User getUser(){
+        return this.friend;
     }
     
     public JPanel getChatPanel(){
